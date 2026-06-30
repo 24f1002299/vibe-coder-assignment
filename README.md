@@ -89,13 +89,17 @@ Good luck!
 | 2 | `tsconfig.app.json` | `strict` mode was disabled, allowing unsafe types to slip through silently. | Enabled `"strict": true` and confirmed `npm run build` still passes. |
 | 3 | `src/pages/ProfileDetailPage.tsx` | Engagement rate was multiplied by `10000` instead of `100`, producing values like `350%` instead of `3.50%`. Also duplicated inline logic instead of using the existing `formatEngagementRate` helper. | Replaced inline math with `formatEngagementRate(user.engagement_rate)` for consistency. |
 | 4 | `src/index.css` | Retained default Vite template element styles (`#root { width: 1126px; text-align: center; }`, `h1`, `h2`, `code`) that conflict with Tailwind utility classes and the planned redesign. | Stripped element-level styles; kept only Tailwind import, CSS variables, and dark-mode overrides. |
-| 5 | `src/components/SearchBar.tsx` | Component was defined and exported but never imported or used. `PlatformFilter` has its own inline search input instead. | Left as-is for now; noted for future cleanup if an `Add to List` feature is built. |
+| 5 | `src/components/SearchBar.tsx` | Component was defined and exported but never imported or used. `PlatformFilter` has its own inline search input instead. | Deleted the unused file to eliminate duplication. |
+| 6 | `src/utils/dataHelpers.ts` | `filterProfiles` matched `username` with case-sensitive `includes()` but `fullname` with case-insensitive `toLowerCase().includes()`. Searching "JOHN" would not find "john_doe". | Lowercased both sides of the username comparison for consistent case-insensitive search. |
+| 7 | `src/pages/ProfileDetailPage.tsx` (Engagements box) | Box gated on `user.engagements !== undefined` was rendering `formatEngagementRate(user.engagement_rate)` — a percentage — instead of the actual raw count (e.g. `371,323`). | Render `user.engagements.toLocaleString()` in that box. |
+| 8 | `src/utils/formatters.ts`, `ProfileCard.tsx`, `ProfileDetailPage.tsx` | Follower-count formatting was implemented three separate times with inconsistent rounding. | Consolidated into one `formatCount(value, { precision, suffix? })` utility; card uses `precision: 1`, detail page uses `precision: 2`. |
 
 ### Decisions Made
 
-- **State management**: Planning to use Zustand for the "selected list" feature to avoid prop-drilling and replace React Context.
-- **Type safety**: Enabled full `strict` mode early so type issues are caught before new feature code is added.
+- **State management**: Built the "selected list" feature with Zustand (using `persist` middleware for `localStorage`-backed state). No React Context existed, so this was a fresh implementation, not a migration.
+- **Toast feedback**: Added a lightweight, Zustand-backed toast store (`useToastStore`) with success toasts on add/remove actions, avoiding any extra UI library dependency.
+- **Type safety**: Enabled full `strict` mode early; all new code ships with strict types and passes `tsc -b` cleanly.
 - **CSS strategy**: Tailwind utilities first, CSS variables for theming (light/dark), no global element selectors.
-- **Bug prioritization**: Fixed install-blocking dependency first, then silent logic bug (engagement rate), then styling conflicts.
-- **Commit discipline**: Meaningful commits grouped by concern (dependency fix → type safety → styles → logic bug) rather than one giant commit.
+- **Duplicate prevention**: `addProfile` guards against `user_id` collisions before inserting, so the same profile cannot be added twice.
+- **Commit discipline**: Meaningful commits grouped by concern (dependency fix → type safety → styles → logic bug → Zustand feature).
 
