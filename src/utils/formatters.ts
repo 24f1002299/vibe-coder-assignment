@@ -1,11 +1,13 @@
-export function formatFollowers(count: number): string {
-  if (count >= 1000000) {
-    return (count / 1000000).toFixed(1) + "M";
+export function formatCount(value: number, options?: { precision?: number; suffix?: string }): string {
+  const precision = options?.precision ?? 1;
+  const suffix = options?.suffix ?? "";
+  if (value >= 1000000) {
+    return (value / 1000000).toFixed(precision) + "M" + suffix;
   }
-  if (count >= 1000) {
-    return (count / 1000).toFixed(1) + "K";
+  if (value >= 1000) {
+    return (value / 1000).toFixed(precision) + "K" + suffix;
   }
-  return count.toString();
+  return value.toString() + suffix;
 }
 
 export function formatEngagementRate(rate: number | undefined): string {

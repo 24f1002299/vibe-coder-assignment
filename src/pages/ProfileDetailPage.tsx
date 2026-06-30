@@ -3,14 +3,8 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import type { FullUserProfile, ProfileDetailResponse } from "@/types";
-import { formatEngagementRate } from "@/utils/formatters";
+import { formatCount, formatEngagementRate } from "@/utils/formatters";
 import { loadProfileByUsername } from "@/utils/profileLoader";
-
-function formatFollowersDetail(count: number) {
-  if (count >= 1000000) return (count / 1000000).toFixed(2) + "M";
-  if (count >= 1000) return (count / 1000).toFixed(1) + "K";
-  return String(count);
-}
 
 export function ProfileDetailPage() {
   const { username } = useParams<{ username: string }>();
@@ -86,12 +80,12 @@ export function ProfileDetailPage() {
           )}
 
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="border p-2 rounded">
-              <div className="text-gray-500">Followers</div>
-              <div className="font-semibold">
-                {formatFollowersDetail(user.followers)}
+              <div className="border p-2 rounded">
+                <div className="text-gray-500">Followers</div>
+                <div className="font-semibold">
+                  {formatCount(user.followers, { precision: 2 })}
+                </div>
               </div>
-            </div>
               <div className="border p-2 rounded">
                 <div className="text-gray-500">Engagement Rate</div>
                 <div className="font-semibold">
@@ -108,7 +102,7 @@ export function ProfileDetailPage() {
               <div className="border p-2 rounded">
                 <div className="text-gray-500">Avg Likes</div>
                 <div className="font-semibold">
-                  {formatFollowersDetail(user.avg_likes)}
+                  {formatCount(user.avg_likes, { precision: 2 })}
                 </div>
               </div>
             )}
@@ -122,7 +116,7 @@ export function ProfileDetailPage() {
               <div className="border p-2 rounded">
                 <div className="text-gray-500">Avg Views</div>
                 <div className="font-semibold">
-                  {formatFollowersDetail(user.avg_views)}
+                  {formatCount(user.avg_views, { precision: 2 })}
                 </div>
               </div>
             )}
