@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { Platform, UserProfileSummary } from "@/types";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { formatCount } from "@/utils/formatters";
+import { useListStore } from "@/store/useListStore";
 
 interface ProfileCardProps {
   profile: UserProfileSummary;
@@ -17,10 +18,23 @@ export function ProfileCard({
   onProfileClick,
 }: ProfileCardProps) {
   const navigate = useNavigate();
+  const isSelected = useListStore((s) => s.isSelected);
+  const addProfile = useListStore((s) => s.addProfile);
+  const removeProfile = useListStore((s) => s.removeProfile);
+
+  const selected = isSelected(profile.user_id);
 
   const handleClick = () => {
     if (onProfileClick) onProfileClick(profile.username);
     navigate(`/profile/${profile.username}?platform=${platform}`);
+  };
+
+  const handleListToggle = () => {
+    if (selected) {
+      removeProfile(profile.user_id);
+    } else {
+      addProfile(profile);
+    }
   };
 
   return (
@@ -38,14 +52,19 @@ export function ProfileCard({
         <div className="text-sm text-gray-600">{profile.fullname}</div>
         <div className="text-sm">{formatCount(profile.followers, { precision: 1, suffix: " followers" })}</div>
       </div>
-      {/* TODO: candidates must implement Add to List feature */}
-      {/* TODO: candidates must implement Add to List feature */}
       <button
-        disabled
-        className="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed"
-        onClick={(e) => e.stopPropagation()}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleListToggle();
+        }}
+        className={`px-3 py-1 text-sm rounded ${
+          selected
+            ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+        }`}
       >
-        Add to List
+        {selected ? "Remove" : "Add to List"}
       </button>
     </div>
   );

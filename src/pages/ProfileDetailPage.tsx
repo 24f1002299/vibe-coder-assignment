@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { Toast } from "@/components/Toast";
 import type { FullUserProfile, ProfileDetailResponse } from "@/types";
 import { formatCount, formatEngagementRate } from "@/utils/formatters";
 import { loadProfileByUsername } from "@/utils/profileLoader";
+import { useListStore } from "@/store/useListStore";
+import { useToastStore } from "@/store/useToastStore";
 
 export function ProfileDetailPage() {
   const { username } = useParams<{ username: string }>();
@@ -14,6 +17,11 @@ export function ProfileDetailPage() {
     null
   );
   const [loaded, setLoaded] = useState(false);
+
+  const addProfile = useListStore((s) => s.addProfile);
+  const removeProfile = useListStore((s) => s.removeProfile);
+  const isSelected = useListStore((s) => s.isSelected);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     if (!username) return;
@@ -55,6 +63,17 @@ export function ProfileDetailPage() {
   }
 
   const user: FullUserProfile = profileData.data.user_profile;
+  const selected = isSelected(user.user_id);
+
+  const handleListToggle = () => {
+    if (selected) {
+      removeProfile(user.user_id);
+      addToast("success", `Removed @${user.username} from your list`);
+    } else {
+      addProfile(user);
+      addToast("success", `Added @${user.username} to your list`);
+    }
+  };
 
   return (
     <Layout title={user.fullname}>
@@ -140,16 +159,20 @@ export function ProfileDetailPage() {
             </a>
           )}
 
-          {/* TODO: candidates must implement Add to List feature */}
-          {/* TODO: candidates must implement Add to List feature */}
           <button
-            disabled
-            className="block mt-4 px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
+            type="button"
+            onClick={handleListToggle}
+            className={`block mt-4 px-4 py-2 rounded ${
+              selected
+                ? "bg-red-600 text-white hover:bg-red-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
-            Add to List
+            {selected ? "Remove from List" : "Add to List"}
           </button>
         </div>
       </div>
+      <Toast />
     </Layout>
   );
 }
