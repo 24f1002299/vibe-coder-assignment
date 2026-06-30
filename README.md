@@ -78,3 +78,24 @@ Complete the following as part of your submission:
 - **Bonus:** Deploying the app (e.g. Vercel, Netlify, GitHub Pages) is optional but will be considered a plus — include the live URL in your submission if you do
 
 Good luck!
+
+## Bugs & Decisions Log
+
+### Bugs Found & Fixed
+
+| # | File | Issue | Fix |
+|---|------|-------|-----|
+| 1 | `package.json` | `react-beautiful-dnd` listed as a dependency but conflicts with React 19 peer requirements; also never imported anywhere in the codebase. | Removed the dependency entirely. |
+| 2 | `tsconfig.app.json` | `strict` mode was disabled, allowing unsafe types to slip through silently. | Enabled `"strict": true` and confirmed `npm run build` still passes. |
+| 3 | `src/pages/ProfileDetailPage.tsx` | Engagement rate was multiplied by `10000` instead of `100`, producing values like `350%` instead of `3.50%`. Also duplicated inline logic instead of using the existing `formatEngagementRate` helper. | Replaced inline math with `formatEngagementRate(user.engagement_rate)` for consistency. |
+| 4 | `src/index.css` | Retained default Vite template element styles (`#root { width: 1126px; text-align: center; }`, `h1`, `h2`, `code`) that conflict with Tailwind utility classes and the planned redesign. | Stripped element-level styles; kept only Tailwind import, CSS variables, and dark-mode overrides. |
+| 5 | `src/components/SearchBar.tsx` | Component was defined and exported but never imported or used. `PlatformFilter` has its own inline search input instead. | Left as-is for now; noted for future cleanup if an `Add to List` feature is built. |
+
+### Decisions Made
+
+- **State management**: Planning to use Zustand for the "selected list" feature to avoid prop-drilling and replace React Context.
+- **Type safety**: Enabled full `strict` mode early so type issues are caught before new feature code is added.
+- **CSS strategy**: Tailwind utilities first, CSS variables for theming (light/dark), no global element selectors.
+- **Bug prioritization**: Fixed install-blocking dependency first, then silent logic bug (engagement rate), then styling conflicts.
+- **Commit discipline**: Meaningful commits grouped by concern (dependency fix → type safety → styles → logic bug) rather than one giant commit.
+

@@ -92,14 +92,12 @@ export function ProfileDetailPage() {
                 {formatFollowersDetail(user.followers)}
               </div>
             </div>
-            <div className="border p-2 rounded">
-              <div className="text-gray-500">Engagement Rate</div>
-              <div className="font-semibold">
-                {user.engagement_rate !== undefined
-                  ? (user.engagement_rate * 10000).toFixed(2) + "%"
-                  : "N/A"}
+              <div className="border p-2 rounded">
+                <div className="text-gray-500">Engagement Rate</div>
+                <div className="font-semibold">
+                  {formatEngagementRate(user.engagement_rate)}
+                </div>
               </div>
-            </div>
             {user.posts_count !== undefined && (
               <div className="border p-2 rounded">
                 <div className="text-gray-500">Posts</div>
